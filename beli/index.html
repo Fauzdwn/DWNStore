@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Detail Produk</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    body { background: #f8f9fa; font-family: 'Poppins', sans-serif; padding: 0; }
+    .navbar { background: #0d6efd; }
+    .navbar-brand, .nav-link { color: #fff !important; }
+    .detail-container { max-width: 800px; margin: 2rem auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    .product-img { width: 100%; height: auto; border-radius: 8px; }
+    .form-container { max-width: 500px; margin: 2rem auto; background: white; padding: 20px; border-radius: 10px; position: relative; }
+    #loadingSpinner { display: none; position: absolute; top: 45%; left: 45%; transform: translate(-50%, -50%); z-index: 10; }
+    #successAlert { display: none; }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">DWNStore</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="admin.html">Admin</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="detail-container">
+    <div id="produk-detail"></div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCN2Qn_VUE2w45lKq0rXy2CzJ7oZXk_f7s",
+      authDomain: "dwnprojeck.firebaseapp.com",
+      databaseURL: "https://dwnprojeck-default-rtdb.firebaseio.com",
+      projectId: "dwnprojeck",
+      storageBucket: "dwnprojeck.firebasestorage.app",
+      messagingSenderId: "838975714627",
+      appId: "1:838975714627:web:9bcfa62ed3fc8dbca56bf6",
+      measurementId: "G-LY0J0CQ9XR"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const params = new URLSearchParams(location.search);
+    const key = params.get('id');
+
+    function formHTML(variations) {
+      const options = variations.map(v => `<option value="${v.name}">${v.name} - ${v.price}</option>`).join('');
+      return `
+        <div class="form-container">
+          <h4 class="mb-3 text-center">Form Pemesanan Paket</h4>
+
+          <div id="successAlert" class="alert alert-success" role="alert">
+            Pesan berhasil dikirim!
+          </div>
+
+          <!-- Nama Buyer -->
+          <div class="mb-3">
+            <label for="buyerName" class="form-label">Nama Anda</label>
+            <input type="text" class="form-control" id="buyerName" placeholder="Nama lengkap" required>
+          </div>
+
+          <!-- Nomor WhatsApp Buyer -->
+          <div class="mb-3">
+            <label for="buyerWA" class="form-label">Nomor WhatsApp</label>
+            <input type="tel" class="form-control" id="buyerWA" placeholder="Contoh: 6281234567890" required>
+          </div>
+
+          <!-- Pilih Paket -->
+          <div class="mb-3">
+            <label for="paket" class="form-label">Pilih Paket</label>
+            <select class="form-select" id="paket" required>
+              <option value="">-- Pilih Paket --</option>
+              ${options}
+            </select>
+          </div>
+
+          <!-- Harga Paket -->
+          <div class="mb-3">
+            <label for="hargaPaket" class="form-label">Harga</label>
+            <input type="text" class="form-control" id="hargaPaket" readonly required>
+          </div>
+
+          <!-- STBID -->
+          <div class="mb-3">
+            <label for="stbId" class="form-label">STBID</label>
+            <input type="text" class="form-control" id="stbId" placeholder="Masukkan STBID" required>
+          </div>
+
+          <button id="btnBeli" class="btn btn-primary w-100">Beli</button>
+
+          <div id="loadingSpinner" class="text-center mt-3">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Mengirim pesan...</p>
+          </div>
+        </div>`;
+    }
+
+    if (key) {
+      db.ref('produk/' + key).once('value').then(snap => {
+        const d = snap.val();
+        document.getElementById('produk-detail').innerHTML = `
+          <h3>${d.nama}</h3>
+          <img src="${d.urlgambar}" alt="${d.nama}" class="product-img mb-3">
+          <hr />
+          ${formHTML(d.variations)}
+        `;
+
+        // Elements
+        const buyerName = document.getElementById('buyerName');
+        const buyerWA = document.getElementById('buyerWA');
+        const paketSelect = document.getElementById('paket');
+        const hargaInput = document.getElementById('hargaPaket');
+        const stbInput = document.getElementById('stbId');
+        const btn = document.getElementById('btnBeli');
+        const spinner = document.getElementById('loadingSpinner');
+        const alertBox = document.getElementById('successAlert');
+
+        alertBox.style.display = 'none';
+        spinner.style.display = 'none';
+
+        paketSelect.addEventListener('change', () => {
+          const sel = d.variations.find(v => v.name === paketSelect.value);
+          hargaInput.value = sel ? sel.price : '';
+        });
+
+        btn.addEventListener('click', async () => {
+          if (!buyerName.value || !buyerWA.value || !paketSelect.value || !hargaInput.value || !stbInput.value) {
+            return alert('Semua kolom wajib diisi!');
+          }
+          btn.disabled = true;
+          spinner.style.display = 'block';
+
+          const msgBuyer = `Hai ${buyerName.value}, berikut detail pesanan kamu di *DWNStore*:
+
+📦 *Paket*  : ${paketSelect.value}
+💰 *Harga*  : ${hargaInput.value}
+📺 *STBID*  : ${stbInput.value}
+⏳ *Status* : Pending
+
+Silakan tunggu konfirmasi dari Admin. Terima kasih sudah order di DWNStore!`;
+
+          const msgAdmin = `Halo Admin,
+Saya ingin membeli:
+
+👤 *Nama*   : ${buyerName.value}
+📦 *Paket*  : ${paketSelect.value}
+📞 *No WA*  : ${buyerWA.value}
+💰 *Harga*  : ${hargaInput.value}
+📺 *STBID*  : ${stbInput.value}
+          
+Segera di proses ya!`;
+
+          // Siapkan FormData untuk buyer saja
+          const formBuyer = new FormData();
+          formBuyer.append('target', buyerWA.value);
+          formBuyer.append('message', msgBuyer);
+          formBuyer.append('countryCode', '62');
+          formBuyer.append('delay', '2');
+
+          // Siapkan FormData untuk admin saja
+          const formAdmin = new FormData();
+          formAdmin.append('target', '6282272339956');
+          formAdmin.append('message', msgAdmin);
+          formAdmin.append('countryCode', '62');
+          formAdmin.append('delay', '2');
+
+          try {
+            // Kirim ke buyer
+            await fetch('https://api.fonnte.com/send', {
+              method: 'POST',
+              headers: { 'Authorization': 'zfFjmR5avg2QDXBGN9eT' },
+              body: formBuyer
+            });
+            // Kirim ke admin
+            await fetch('https://api.fonnte.com/send', {
+              method: 'POST',
+              headers: { 'Authorization': 'zfFjmR5avg2QDXBGN9eT' },
+              body: formAdmin
+            });
+            alertBox.style.display = 'block';
+          } catch (err) {
+            console.error('Gagal kirim via Fonnte:', err);
+            alert('Gagal mengirim pesan!');
+          } finally {
+            spinner.style.display = 'none';
+            btn.disabled = false;
+          }
+        });
+      }).catch(err => console.error('Gagal load detail:', err));
+    }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
