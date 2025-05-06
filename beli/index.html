@@ -37,6 +37,7 @@
     <div id="produk-detail"></div>
   </div>
 
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script>
@@ -66,19 +67,16 @@
             Pesan berhasil dikirim!
           </div>
 
-          <!-- Nama Buyer -->
           <div class="mb-3">
             <label for="buyerName" class="form-label">Nama Anda</label>
             <input type="text" class="form-control" id="buyerName" placeholder="Nama lengkap" required>
           </div>
 
-          <!-- Nomor WhatsApp Buyer -->
           <div class="mb-3">
             <label for="buyerWA" class="form-label">Nomor WhatsApp</label>
             <input type="tel" class="form-control" id="buyerWA" placeholder="Contoh: 6281234567890" required>
           </div>
 
-          <!-- Pilih Paket -->
           <div class="mb-3">
             <label for="paket" class="form-label">Pilih Paket</label>
             <select class="form-select" id="paket" required>
@@ -87,13 +85,11 @@
             </select>
           </div>
 
-          <!-- Harga Paket -->
           <div class="mb-3">
             <label for="hargaPaket" class="form-label">Harga</label>
             <input type="text" class="form-control" id="hargaPaket" readonly required>
           </div>
 
-          <!-- STBID -->
           <div class="mb-3">
             <label for="stbId" class="form-label">STBID</label>
             <input type="text" class="form-control" id="stbId" placeholder="Masukkan STBID" required>
@@ -117,10 +113,8 @@
           <h3>${d.nama}</h3>
           <img src="${d.urlgambar}" alt="${d.nama}" class="product-img mb-3">
           <hr />
-          ${formHTML(d.variations)}
-        `;
+          ${formHTML(d.variations)}`;
 
-        // Elements
         const buyerName = document.getElementById('buyerName');
         const buyerWA = document.getElementById('buyerWA');
         const paketSelect = document.getElementById('paket');
@@ -145,34 +139,27 @@
           btn.disabled = true;
           spinner.style.display = 'block';
 
-          const msgBuyer = `Hai ${buyerName.value}, berikut detail pesanan kamu di *DWNStore*:
-
-📦 *Paket*  : ${paketSelect.value}
-💰 *Harga*  : ${hargaInput.value}
-📺 *STBID*  : ${stbInput.value}
-⏳ *Status* : Pending
-
+          const msgBuyer = `Hai ${buyerName.value}, berikut detail pesanan kamu di *DWNStore*:\n
+📦 *Paket*  : ${paketSelect.value}\n
+💰 *Harga*  : ${hargaInput.value}\n
+📺 *STBID*  : ${stbInput.value}\n
+⏳ *Status* : Pending\n
 Silakan tunggu konfirmasi dari Admin. Terima kasih sudah order di DWNStore!`;
 
-          const msgAdmin = `Halo Admin,
-Saya ingin membeli:
-
-👤 *Nama*   : ${buyerName.value}
-📦 *Paket*  : ${paketSelect.value}
-📞 *No WA*  : ${buyerWA.value}
-💰 *Harga*  : ${hargaInput.value}
-📺 *STBID*  : ${stbInput.value}
-          
+          const msgAdmin = `Halo Admin,\nSaya ingin membeli:\n
+👤 *Nama*   : ${buyerName.value}\n
+📦 *Paket*  : ${paketSelect.value}\n
+📞 *No WA*  : ${buyerWA.value}\n
+💰 *Harga*  : ${hargaInput.value}\n
+📺 *STBID*  : ${stbInput.value}\n
 Segera di proses ya!`;
 
-          // Siapkan FormData untuk buyer saja
           const formBuyer = new FormData();
           formBuyer.append('target', buyerWA.value);
           formBuyer.append('message', msgBuyer);
           formBuyer.append('countryCode', '62');
           formBuyer.append('delay', '2');
 
-          // Siapkan FormData untuk admin saja
           const formAdmin = new FormData();
           formAdmin.append('target', '6282272339956');
           formAdmin.append('message', msgAdmin);
@@ -182,20 +169,31 @@ Segera di proses ya!`;
           try {
             // Kirim ke buyer
             await fetch('https://api.fonnte.com/send', {
-              method: 'POST',
-              headers: { 'Authorization': 'zfFjmR5avg2QDXBGN9eT' },
-              body: formBuyer
+              method: 'POST', headers: { 'Authorization': 'zfFjmR5avg2QDXBGN9eT' }, body: formBuyer
             });
             // Kirim ke admin
             await fetch('https://api.fonnte.com/send', {
-              method: 'POST',
-              headers: { 'Authorization': 'zfFjmR5avg2QDXBGN9eT' },
-              body: formAdmin
+              method: 'POST', headers: { 'Authorization': 'zfFjmR5avg2QDXBGN9eT' }, body: formAdmin
             });
+
+            // Simpan data buyer ke Firebase
+            const newBuyerRef = db.ref('buyer').push();
+            const idbuyer = newBuyerRef.key;
+            await newBuyerRef.set({
+              idbuyer,
+              nama: buyerName.value,
+              wa: buyerWA.value,
+              paket: paketSelect.value,
+              harga: hargaInput.value,
+              stbId: stbInput.value,
+              produkId: key,
+              timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+
             alertBox.style.display = 'block';
           } catch (err) {
-            console.error('Gagal kirim via Fonnte:', err);
-            alert('Gagal mengirim pesan!');
+            console.error('Gagal kirim atau simpan data:', err);
+            alert('Gagal mengirim pesan atau menyimpan data!');
           } finally {
             spinner.style.display = 'none';
             btn.disabled = false;
