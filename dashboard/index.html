@@ -233,7 +233,7 @@
       const isNew = !keyField;
       const idValue = isNew ? Date.now() : Number(document.getElementById('prod-id').value);
       const nama = document.getElementById('prod-name').value.trim();
-      const desk = document.getElementById('prod-desk').value.trim()
+      const deskripsi = document.getElementById('prod-desk').value.trim()
       const status = document.getElementById('prod-status').value;
       const urlgambar = document.getElementById('prod-image').value.trim();
 
@@ -248,7 +248,7 @@
         return alert('Tambahkan minimal satu paket/variasi!');
       }
 
-      const data = { id: idValue, nama, desk, status, urlgambar, variations };
+      const data = { id: idValue, nama, deskripsi, status, urlgambar, variations };
       const ref = isNew ? db.ref('produk').push() : db.ref('produk/' + keyField);
       ref.set(data)
         .then(() => {
