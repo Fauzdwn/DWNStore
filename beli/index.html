@@ -130,8 +130,8 @@
         document.getElementById('produk-detail').innerHTML = `
           <h3>${d.nama}</h3>
           <img src="${d.urlgambar}" alt="${d.nama}" class="product-img mb-3">
-          <p id="deskripsi">${d.deskripsi}</p>
-          <hr />
+          <div id="deskripsi" class="mb-3" style="white-space: pre-line;">${d.deskripsi}</div>
+<hr />
           ${formHTML(d.variations)}`;
 
         const buyerName = document.getElementById('buyerName');
