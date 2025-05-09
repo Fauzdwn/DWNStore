@@ -211,7 +211,7 @@
             <tr>
               <td>${d.id}</td>
               <td>${d.nama}</td>
-              <td>${d.deskripsi}</td>
+              <td>${(d.deskripsi || '').replace(/\n/g, '<br>')}</td>
               <td>Rp.${minPrice.toLocaleString()}</td>
               <td>${d.status}</td>
               <td>
