@@ -66,10 +66,9 @@
         <input id="prod-name" class="form-control" required>
       </div>
       <div class="mb-3">
-<label for="prod-desk" class="form-label">Deskripsi</label>
- <textarea id="prod-desk" class="form-control" rows="4" required></textarea>
-</div>
-
+        <label for="prod-desk" class="form-label">Deskripsi</label>
+        <input id="prod-desk" class="form-control" required>
+      </div>
 
       <!-- Variasi Paket -->
       <div id="variations-container" class="mb-3">
@@ -211,7 +210,7 @@
             <tr>
               <td>${d.id}</td>
               <td>${d.nama}</td>
-              <td>${(d.deskripsi || '').replace(/\n/g, '<br>')}</td>
+              <td>${d.deskripsi}</td>
               <td>Rp.${minPrice.toLocaleString()}</td>
               <td>${d.status}</td>
               <td>
