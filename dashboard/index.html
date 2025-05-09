@@ -28,7 +28,7 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
-          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="../">Home</a></li>
         </ul>
       </div>
     </div>
@@ -65,6 +65,11 @@
         <label for="prod-name" class="form-label">Nama</label>
         <input id="prod-name" class="form-control" required>
       </div>
+      <div class="mb-3">
+ <label for="prod-desk" class="form-label">Deskripsi</label>
+ <textarea id="prod-desk" class="form-control" rows="4" required></textarea>
+</div>
+
 
       <!-- Variasi Paket -->
       <div id="variations-container" class="mb-3">
@@ -97,6 +102,7 @@
       <tr>
         <th>ID</th>
         <th>Nama</th>
+        <th>Deskripsi</th>
         <th>Harga Termurah</th>
         <th>Status</th>
         <th>Aksi</th>
@@ -205,6 +211,7 @@
             <tr>
               <td>${d.id}</td>
               <td>${d.nama}</td>
+              <td>${(d.deskripsi || '').replace(/\n/g, '<br>')}</td>
               <td>Rp.${minPrice.toLocaleString()}</td>
               <td>${d.status}</td>
               <td>
@@ -226,6 +233,7 @@
       const isNew = !keyField;
       const idValue = isNew ? Date.now() : Number(document.getElementById('prod-id').value);
       const nama = document.getElementById('prod-name').value.trim();
+      const deskripsi = document.getElementById('prod-desk').value.trim()
       const status = document.getElementById('prod-status').value;
       const urlgambar = document.getElementById('prod-image').value.trim();
 
@@ -240,7 +248,7 @@
         return alert('Tambahkan minimal satu paket/variasi!');
       }
 
-      const data = { id: idValue, nama, status, urlgambar, variations };
+      const data = { id: idValue, nama, deskripsi, status, urlgambar, variations };
       const ref = isNew ? db.ref('produk').push() : db.ref('produk/' + keyField);
       ref.set(data)
         .then(() => {
@@ -265,6 +273,7 @@
           document.getElementById('prod-key').value = key;
           document.getElementById('prod-id').value = d.id;
           document.getElementById('prod-name').value = d.nama;
+          document.getElementById('prod-desk').value = d.deskripsi;
           document.getElementById('prod-image').value = d.urlgambar;
           document.getElementById('prod-status').value = d.status;
           // muat variations
