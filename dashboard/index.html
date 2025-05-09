@@ -247,7 +247,7 @@
         return alert('Tambahkan minimal satu paket/variasi!');
       }
 
-      const data = { id: idValue, nama, deskripsi, status, urlgambar, variations };
+      const data = { id: idValue, nama, desk, status, urlgambar, variations };
       const ref = isNew ? db.ref('produk').push() : db.ref('produk/' + keyField);
       ref.set(data)
         .then(() => {
