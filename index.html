@@ -229,17 +229,20 @@
           const priceText = minPrice ? 'Rp.' + minPrice.toLocaleString() : '-';
 
           const col = `
-            <div class="col-md-3 mb-4">
-              <div class="product-card">
-                <img src="${d.urlgambar}" class="product-image" alt="${d.nama}">
-                <div class="product-info p-2">
-                  <h5>${d.nama}</h5>
-                  <p class="price fw-bold">${priceText}</p>
-                  <a href="beli/index.html?id=${child.key}" class="btn btn-sm btn-primary mt-2">Beli</a>
-                </div>
-              </div>
-            </div>
-          `;
+  <div class="col-6 mb-3">
+    <div class="product-card h-100 d-flex flex-column">
+      <img src="${d.urlgambar}" class="product-image" alt="${d.nama}">
+      <div class="product-info p-2 flex-fill d-flex flex-column justify-content-between">
+        <div>
+          <h5>${d.nama}</h5>
+          <p class="price fw-bold">${priceText}</p>
+        </div>
+        <a href="beli/index.html?id=${child.key}" class="btn btn-sm btn-primary mt-2">Beli</a>
+      </div>
+    </div>
+  </div>
+`;
+
           const section = secs[d.status.toLowerCase()] || secs.populer;
           document.getElementById(section).innerHTML += col;
         });
