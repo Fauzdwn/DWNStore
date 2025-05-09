@@ -130,6 +130,7 @@
         document.getElementById('produk-detail').innerHTML = `
           <h3>${d.nama}</h3>
           <img src="${d.urlgambar}" alt="${d.nama}" class="product-img mb-3">
+          <p id="deskripsi">${d.deskripsi}</p>
           <hr />
           ${formHTML(d.variations)}`;
 
