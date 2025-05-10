@@ -126,21 +126,48 @@
     const db = firebase.database();
 
     function renderNexOnly() {
-  const container = document.getElementById('produk-nex');
-  container.innerHTML = '';
-  db.ref('produk').once('value')
-    .then(snapshot => {
-      snapshot.forEach(child => {
-        const d = child.val();
-        if (d.status && d.status.toLowerCase() === 'nex parabola') {
-          // ... (hitung harga, bangun HTML)
-          container.insertAdjacentHTML('beforeend', /* kartu Nex Parabola */);
-        }
-      });
-    })
-    .catch(err => console.error('Gagal load Nex Parabola:', err));
-}
-document.addEventListener('DOMContentLoaded', renderNexOnly);
+      const container = document.getElementById('produk-nex');
+      container.innerHTML = '';
+
+      db.ref('produk').once('value')
+        .then(snapshot => {
+          snapshot.forEach(child => {
+            const d = child.val();
+            if (d.status && d.status.toLowerCase() === 'Nex Parabola') {
+              // Hitung harga termurah
+              let minPrice = Infinity;
+              if (Array.isArray(d.variations) && d.variations.length) {
+                minPrice = d.variations
+                  .map(v => parseInt(v.price.replace(/[^0-9]/g, ''), 10))
+                  .reduce((a, b) => Math.min(a, b), Infinity);
+              }
+              const priceText = (minPrice !== Infinity)
+                ? 'Rp.' + minPrice.toLocaleString()
+                : '-';
+
+              // Bungkus dengan kelas col-6 untuk 2 kolom
+              const cardHTML = `
+                <div class="col-6 mb-4">
+                  <div class="product-card h-100">
+                    <img src="${d.urlgambar}" class="product-image" alt="${d.nama}">
+                    <div class="product-info">
+                      <div>
+                        <h5>${d.nama}</h5>
+                        <p class="price fw-bold">${priceText}</p>
+                      </div>
+                      <a href="beli/index.html?id=${child.key}" class="btn btn-sm btn-primary mt-2">Beli</a>
+                    </div>
+                  </div>
+                </div>
+              `;
+              container.insertAdjacentHTML('beforeend', cardHTML);
+            }
+          });
+        })
+        .catch(err => console.error('Gagal load Nex Parabola:', err));
+    }
+
+    document.addEventListener('DOMContentLoaded', renderNexOnly);
 
   </script>
 </body>
