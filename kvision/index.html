@@ -118,47 +118,49 @@
     const db = firebase.database();
     
     // Render products dengan harga termurah
-    function renderProducts() {
-      db.ref('produk').once('value').then(snapshot => {
-        const secs = {
-          populer: 'produk-populer',
-          'k-vision': 'produk-kvision',
-          nusantara: 'produk-nusantara',
-          'nex parabola': 'produk-nex'
-        };
-        // Clear each section
-        Object.values(secs).forEach(id => document.getElementById(id).innerHTML = '');
+    function renderKvisionOnly() {
+    const container = document.getElementById('produk-kvision');
+    container.innerHTML = '';  // clear container
 
+    db.ref('produk').once('value')
+      .then(snapshot => {
         snapshot.forEach(child => {
           const d = child.val();
-          // Hitung harga termurah dari array variations
-          let minPrice = 0;
-          if (Array.isArray(d.variations) && d.variations.length > 0) {
-            minPrice = d.variations
-              .map(v => parseInt(v.price.replace(/[^0-9]/g, ''), 10))
-              .reduce((a, b) => Math.min(a, b));
+          if (d.status && d.status.toLowerCase() === 'k-vision') {
+            // Hitung harga termurah
+            let minPrice = 0;
+            if (Array.isArray(d.variations) && d.variations.length) {
+              minPrice = d.variations
+                .map(v => parseInt(v.price.replace(/[^0-9]/g, ''), 10))
+                .reduce((a, b) => Math.min(a, b), Infinity);
+            }
+            const priceText = minPrice && minPrice !== Infinity
+              ? 'Rp.' + minPrice.toLocaleString()
+              : '-';
+
+            // Buat card HTML
+            const col = `
+              <div class="product-card">
+                <img src="${d.urlgambar}" class="product-image" alt="${d.nama}">
+                <div class="product-info p-2 d-flex flex-column justify-content-between">
+                  <div>
+                    <h5>${d.nama}</h5>
+                    <p class="price fw-bold">${priceText}</p>
+                  </div>
+                  <a href="beli/index.html?id=${child.key}"
+                     class="btn btn-sm btn-primary mt-2">Beli</a>
+                </div>
+              </div>
+            `;
+            container.innerHTML += col;
           }
-          const priceText = minPrice ? 'Rp.' + minPrice.toLocaleString() : '-';
-
-          const col = `
-  <div class="product-card">
-    ${d.status.toLowerCase() === 'populer' ? '<div class="product-label">Terlaris</div>' : ''}
-    <img src="${d.urlgambar}" class="product-image" alt="${d.nama}">
-    <div class="product-info p-2 d-flex flex-column justify-content-between">
-      <div>
-        <h5>${d.nama}</h5>
-        <p class="price fw-bold">${priceText}</p>
-      </div>
-      <a href="beli/index.html?id=${child.key}" class="btn btn-sm btn-primary mt-2">Beli</a>
-    </div>
-  </div>
-`;
-
-          const section = secs[d.status.toLowerCase()] || secs.populer;
-          document.getElementById(section).innerHTML += col;
         });
-      }).catch(err => console.error('Gagal load produk:', err));
-    }
+      })
+      .catch(err => console.error('Gagal load K-Vision:', err));
+  }
+
+  document.addEventListener('DOMContentLoaded', renderKvisionOnly);
+
     document.addEventListener('DOMContentLoaded', renderProducts);
   </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
