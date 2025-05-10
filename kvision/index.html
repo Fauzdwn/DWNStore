@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DWNStore - Kvision</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style type="text/css" media="all">
+      body { font-family: 'Poppins', sans-serif; background: #fff; color: #333; }
+  .navbar { background: #0d6efd; }
+  .navbar-brand, .nav-link { color: #fff !important; }
+  .section-title { text-align: center; margin: 2rem 0; color: #0d6efd; }
+    /* Product Card */
+  .product-card {
+    background: #fff;                    /* putih bersih */
+    border: 2px solid #0d6efd;           /* garis biru */
+    border-radius: 12px;                 /* sudut melengkung */
+    overflow: hidden;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(13, 110, 253, 0.2); /* bayangan biru lembut */
+  }
+
+  .product-image {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-bottom: 1px solid #e9ecef;
+  }
+
+  .product-info {
+    padding: 1rem;
+    text-align: center;
+  }
+  .product-info h5 {
+    font-size: 1rem;
+    margin-bottom: .5rem;
+    color: #0d6efd;
+  }
+  .product-info .price {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #0d6efd;
+  }
+  .product-info .btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: #fff;
+    padding: .4rem .8rem;
+    font-size: .9rem;
+    border-radius: 6px;
+    transition: background-color .2s;
+  }
+  .product-info .btn-primary:hover {
+    background-color: #084298;
+    border-color: #084298;
+  }
+  
+  footer { background: #0d6efd; color: #fff; padding: 2rem; text-align: center; }
+    </style>
+      <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css"
+    />
+  </head>
+  <body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">DWNStore</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  
+  <h2 class="section-title">Paket K-Vision</h2>
+    <div class="product-section-scroll" id="produk-kvision"></div>
+    
+  <!-- Footer -->
+  <footer id="contact">
+    <p><i class="ph ph-envelope-simple"></i> <a href="mailto:ahmadfauzidarmawan18@gmail.com" class="text-white">info@dwnstore.my.id</a></p>
+    <p><i class="ph ph-phone"></i> <a href="https://wa.me/6282272339956" class="text-white">6282272339956</a></p>
+    <p>&copy; 2025 DWNStore.</p>
+  </footer>
+  <!-- Firebase & App Script -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script>
+    // Konfigurasi Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyCN2Qn_VUE2w45lKq0rXy2CzJ7oZXk_f7s",
+      authDomain: "dwnprojeck.firebaseapp.com",
+      databaseURL: "https://dwnprojeck-default-rtdb.firebaseio.com",
+      projectId: "dwnprojeck",
+      storageBucket: "dwnprojeck.firebasestorage.app",
+      messagingSenderId: "838975714627",
+      appId: "1:838975714627:web:9bcfa62ed3fc8dbca56bf6",
+      measurementId: "G-LY0J0CQ9XR"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    
+    // Render products dengan harga termurah
+    function renderProducts() {
+      db.ref('produk').once('value').then(snapshot => {
+        const secs = {
+          populer: 'produk-populer',
+          'k-vision': 'produk-kvision',
+          nusantara: 'produk-nusantara',
+          'nex parabola': 'produk-nex'
+        };
+        // Clear each section
+        Object.values(secs).forEach(id => document.getElementById(id).innerHTML = '');
+
+        snapshot.forEach(child => {
+          const d = child.val();
+          // Hitung harga termurah dari array variations
+          let minPrice = 0;
+          if (Array.isArray(d.variations) && d.variations.length > 0) {
+            minPrice = d.variations
+              .map(v => parseInt(v.price.replace(/[^0-9]/g, ''), 10))
+              .reduce((a, b) => Math.min(a, b));
+          }
+          const priceText = minPrice ? 'Rp.' + minPrice.toLocaleString() : '-';
+
+          const col = `
+  <div class="product-card">
+    ${d.status.toLowerCase() === 'populer' ? '<div class="product-label">Terlaris</div>' : ''}
+    <img src="${d.urlgambar}" class="product-image" alt="${d.nama}">
+    <div class="product-info p-2 d-flex flex-column justify-content-between">
+      <div>
+        <h5>${d.nama}</h5>
+        <p class="price fw-bold">${priceText}</p>
+      </div>
+      <a href="beli/index.html?id=${child.key}" class="btn btn-sm btn-primary mt-2">Beli</a>
+    </div>
+  </div>
+`;
+
+          const section = secs[d.status.toLowerCase()] || secs.populer;
+          document.getElementById(section).innerHTML += col;
+        });
+      }).catch(err => console.error('Gagal load produk:', err));
+    }
+    document.addEventListener('DOMContentLoaded', renderProducts);
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
