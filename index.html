@@ -107,6 +107,41 @@
     background-color: #084298;
     border-color: #084298;
   }
+  
+  .product-section-scroll {
+  overflow-x: auto;
+  display: flex;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  scroll-snap-type: x mandatory;
+}
+.product-section-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+.product-section-scroll::-webkit-scrollbar-thumb {
+  background-color: #0d6efd;
+  border-radius: 4px;
+}
+
+.product-card {
+  min-width: 240px;
+  scroll-snap-align: start;
+  position: relative;
+}
+
+.product-label {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  background-color: #dc3545;
+  color: #fff;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.75rem;
+  border-radius: 4px;
+  font-weight: bold;
+  z-index: 2;
+}
+
 
   footer { background: #0d6efd; color: #fff; padding: 2rem; text-align: center; }
 </style>
@@ -168,16 +203,16 @@
   <!-- Products Sections -->
   <section id="products" class="container">
     <h2 class="section-title">Produk Populer</h2>
-    <div class="row" id="produk-populer"></div>
+    <div class="product-section-scroll" id="produk-populer"></div>
 
     <h2 class="section-title">Paket K-Vision</h2>
-    <div class="row" id="produk-kvision"></div>
+    <div class="product-section-scroll" id="produk-kvision"></div>
 
     <h2 class="section-title">Paket Nusantara</h2>
-    <div class="row" id="produk-nusantara"></div>
+    <div class="product-section-scroll" id="produk-nusantara"></div>
 
     <h2 class="section-title">Paket Nex Parabola</h2>
-    <div class="row" id="produk-nex"></div>
+    <div class="product-section-scroll" id="produk-nex"></div>
   </section>
 
   <!-- Footer -->
@@ -229,16 +264,15 @@
           const priceText = minPrice ? 'Rp.' + minPrice.toLocaleString() : '-';
 
           const col = `
-  <div class="col-6 mb-3">
-    <div class="product-card h-100 d-flex flex-column">
-      <img src="${d.urlgambar}" class="product-image" alt="${d.nama}">
-      <div class="product-info p-2 flex-fill d-flex flex-column justify-content-between">
-        <div>
-          <h5>${d.nama}</h5>
-          <p class="price fw-bold">${priceText}</p>
-        </div>
-        <a href="beli/index.html?id=${child.key}" class="btn btn-sm btn-primary mt-2">Beli</a>
+  <div class="product-card">
+    ${d.status.toLowerCase() === 'populer' ? '<div class="product-label">Terlaris</div>' : ''}
+    <img src="${d.urlgambar}" class="product-image" alt="${d.nama}">
+    <div class="product-info p-2 d-flex flex-column justify-content-between">
+      <div>
+        <h5>${d.nama}</h5>
+        <p class="price fw-bold">${priceText}</p>
       </div>
+      <a href="beli/index.html?id=${child.key}" class="btn btn-sm btn-primary mt-2">Beli</a>
     </div>
   </div>
 `;
