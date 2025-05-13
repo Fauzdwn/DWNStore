@@ -159,6 +159,23 @@
     <span id="toggleDesc" class="toggle-desc">Baca selengkapnya…</span>
 <hr />
           ${formHTML(d.variations)}`;
+  const descDiv = document.getElementById('deskripsi');
+  const toggleLink = document.getElementById('toggleDesc');
+  let expanded = false;
+
+  toggleLink.addEventListener('click', () => {
+    expanded = !expanded;
+    if (expanded) {
+      // buka penuh
+      descDiv.classList.remove('desc-clamp');
+      toggleLink.textContent = 'Tutup ringkasan';
+    } else {
+      // kembali clamp dua baris
+      descDiv.classList.add('desc-clamp');
+      toggleLink.textContent = 'Baca selengkapnya…';
+    }
+  });
+
 
         const buyerName = document.getElementById('buyerName');
         const buyerWA = document.getElementById('buyerWA');
