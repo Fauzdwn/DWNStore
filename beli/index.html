@@ -148,8 +148,8 @@
           document.getElementById('btnBeli').disabled = true;
 
           // Prepare messages & forms then send
-          const msgBuyer = `Hai ${name}, berikut detail pesanan kamu di *DWNStore*:\n\n📦 Paket: ${paket}\n💰 Harga: ${harga}\n📺 STBID: ${stb}\n⏳ Status: Pending`;
-          const msgAdmin = `Halo Admin, saya ingin membeli:\n\n👤 Nama: ${name}\n📞 No WA: ${wa}\n📦 Paket: ${paket}\n💰 Harga: ${harga}\n📺 STBID: ${stb}`;
+          const msgBuyer = `Hai ${name}, berikut detail pesanan kamu di *DWNStore*:\n\n📦 Paket: ${paket}\n💰 Harga: ${harga}\n📺 STBID: ${stb}\n⏳ Status: Pending\n\n*_Silakan tunggu konfirmasi dari Admin. Terima kasih sudah order di DWNStore!_*`;
+          const msgAdmin = `Halo Admin, saya ingin membeli:\n\n👤 Nama: ${name}\n📞 No WA: ${wa}\n📦 Paket: ${paket}\n💰 Harga: ${harga}\n📺 STBID: ${stb}\n\n*_Segera di proses ya!_*`;
           const send = async (target, message) => {
             const form = new FormData(); form.append('target', target); form.append('message', message);
             form.append('countryCode','62'); form.append('delay','2');
