@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Beli Produk</title>
+  <script src="html5-qrcode.min.js"></script>
   <link
       rel="stylesheet"
       type="text/css"
@@ -21,6 +22,29 @@
     .navbar { background: #0d6efd; }
     .navbar-brand, .nav-link { color: #fff !important; }
     .detail-container { max-width: 800px; margin: 2rem auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    #stbId {
+            width: 100%;
+            padding: 8px 40px 8px 8px;
+            font-size: 1rem;
+        }
+        #qr-open {
+            position: absolute;
+            right: 4px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+        #qr-reader-wrapper {
+            display: none;
+            margin-top: 10px;
+        }
+        #qr-reader {
+            width: 100%;
+            max-width: 400px;
+        }
     footer { background: #0d6efd; color: #fff; padding: 2rem; text-align: center; }
     .product-img { width: 100%; height: auto; border-radius: 8px; }
     .form-container { max-width: 500px; margin: 2rem auto; background: white; padding: 20px; border-radius: 10px; position: relative; }
@@ -129,12 +153,16 @@
           <div class="mb-3">
             <label for="hargaPaket" class="form-label">Harga</label>
             <input type="text" class="form-control" id="hargaPaket" readonly required>
-          </div>
-
+          </div
+          
           <div class="mb-3">
-            <label for="stbId" class="form-label">STBID</label>
-            <input type="text" class="form-control" id="stbId" placeholder="Masukkan STBID" required>
-          </div>
+         <label for="stbId" class="form-label">STBID</label>
+        <input type="number" id="stbId" placeholder="Masukkan STBID" required />
+        <button id="qr-open" title="Scan QR">📷</button>
+    </div>
+    <div id="qr-reader-wrapper">
+        <div id="qr-reader"></div>
+    </div>
 
           <button id="btnBeli" class="btn btn-primary w-100">Beli</button>
 
