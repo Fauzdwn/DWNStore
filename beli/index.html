@@ -154,8 +154,8 @@
           document.getElementById('loadingSpinner').style.display = 'block';
           document.getElementById('btnBeli').disabled = true;
 
-          const msgBuyer = `Hai ${name}, berikut detail pesanan kamu di *DWNStore*:\n📦 Paket: ${paket}\n💰 Harga: ${price}\n📺 STBID: ${stb}\n⏳ Status: Pending`;
-          const msgAdmin = `Halo Admin, saya ingin membeli:\nNama: ${name}\nWA: ${wa}\nPaket: ${paket}\nHarga: ${price}\nSTBID: ${stb}`;
+          const msgBuyer = `Hai ${name}, berikut detail pesanan kamu di *DWNStore*:\n\n📦 *Paket*  : ${paket}\n💰 *Harga*  : ${price}\n📺 *STBID*  : ${stb}\n⏳ S*tatus:*   Pending\n\n*_Silakan tunggu konfirmasi dari Admin. Terima kasih sudah order di DWNStore!_*`;
+          const msgAdmin = `Halo Admin, saya ingin membeli:\n\n👤 *Nama*  : ${name}\n📞 *No WA*  : ${wa}\n📦 *Paket*  : ${paket}\n💰 *Harga*  : ${price}\n📺 *STBID*  : ${stb}\n\n*_Segera di proses ya!_*`;
 
           const sendMessage = async (to, msg) => {
             const f = new FormData();
