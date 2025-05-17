@@ -2,11 +2,12 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Beli Produk</title>
-  <script src="html5-qrcode.min.js"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <!-- HTML5 QR Code library via CDN -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.7/html5-qrcode.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css" />
   <style>
@@ -76,25 +77,27 @@
     const params = new URLSearchParams(location.search);
     const key = params.get('id');
 
-    // Generate order form
     function formHTML(variations) {
       const options = variations.map(v => `<option value="${v.name}">${v.name} - ${v.price}</option>`).join('');
       return `
         <div class="form-container">
           <h4 class="mb-3 text-center">Form Pemesanan Paket</h4>
           <div id="successAlert" class="alert alert-success" style="display:none;">Pesanan sedang di proses!</div>
-          <div class="mb-3"><label for="buyerName" class="form-label">Nama Anda</label><input type="text" id="buyerName" class="form-control" placeholder="Nama" required></div>
-          <div class="mb-3"><label for="buyerWA" class="form-label">Nomor WhatsApp</label><input type="tel" id="buyerWA" class="form-control" placeholder="0822xxxxxxxx" required></div>
-          <div class="mb-3"><label for="paket" class="form-label">Pilih Paket</label><select id="paket" class="form-select" required><option value="">-- Pilih Paket --</option>${options}</select></div>
-          <div class="mb-3"><label for="hargaPaket" class="form-label">Harga</label><input type="text" id="hargaPaket" class="form-control" readonly required></div>
-          <div class="mb-3 position-relative"><label for="stbId" class="form-label">STBID</label><input type="number" id="stbId" placeholder="Masukkan STBID" readonly /><button id="qr-open" title="Scan QR">📷</button></div>
+          <div class="mb-3"><label for="buyerName" class="form-label">Nama Anda</label><input type="text" id="buyerName" class="form-control" placeholder="Nama"></div>
+          <div class="mb-3"><label for="buyerWA" class="form-label">Nomor WhatsApp</label><input type="tel" id="buyerWA" class="form-control" placeholder="0822xxxxxxxx"></div>
+          <div class="mb-3"><label for="paket" class="form-label">Pilih Paket</label><select id="paket" class="form-select"><option value="">-- Pilih Paket --</option>${options}</select></div>
+          <div class="mb-3"><label for="hargaPaket" class="form-label">Harga</label><input type="text" id="hargaPaket" class="form-control" readonly></div>
+          <div class="mb-3 position-relative">
+            <label for="stbId" class="form-label">STBID</label>
+            <input type="text" id="stbId" placeholder="Masukkan STBID" readonly />
+            <button id="qr-open" type="button" title="Scan QR">📷</button>
+          </div>
           <div id="qr-reader-wrapper"><div id="qr-reader"></div></div>
-          <button id="btnBeli" class="btn btn-primary w-100 mt-3">Beli</button>
+          <button id="btnBeli" type="button" class="btn btn-primary w-100 mt-3">Beli</button>
           <div id="loadingSpinner" class="text-center mt-3" style="display:none;"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div><p class="mt-2">Mengirim pesanan...</p></div>
         </div>`;
     }
 
-    // Load product detail
     if (key) {
       db.ref('produk/' + key).once('value').then(snap => {
         const d = snap.val();
@@ -105,73 +108,75 @@
           <span id="toggleDesc" class="toggle-desc">Baca selengkapnya…</span>
           <hr/>${formHTML(d.variations)}`;
 
-        // Expand/collapse description
-        const descDiv = document.getElementById('deskripsi');
+        // Expand description
+        const desc = document.getElementById('deskripsi');
         let expanded = false;
         document.getElementById('toggleDesc').addEventListener('click', () => {
           expanded = !expanded;
-          descDiv.classList.toggle('desc-clamp');
+          desc.classList.toggle('desc-clamp');
           document.getElementById('toggleDesc').textContent = expanded ? 'Tutup ringkasan' : 'Baca selengkapnya…';
         });
 
-        // Form logic
-        const paketSelect = document.getElementById('paket');
-        paketSelect.addEventListener('change', () => {
-          const sel = d.variations.find(v => v.name === paketSelect.value);
+        // Paket select handler
+        const select = document.getElementById('paket');
+        select.addEventListener('change', () => {
+          const sel = d.variations.find(v => v.name === select.value);
           document.getElementById('hargaPaket').value = sel ? sel.price : '';
         });
 
-        // QR code scanner
-        const openBtn = document.getElementById('qr-open');
-        const readerWrapper = document.getElementById('qr-reader-wrapper');
+        // QR scanner
+        const qrWrapper = document.getElementById('qr-reader-wrapper');
+        const qrBtn = document.getElementById('qr-open');
         let scanner;
-        openBtn.addEventListener('click', () => {
-          readerWrapper.style.display = 'block';
-          if (!scanner) scanner = new Html5Qrcode("qr-reader");
-          scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (decoded) => {
-            document.getElementById('stbId').value = decoded;
-            scanner.stop(); readerWrapper.style.display = 'none';
-          }).catch(e => console.error(e));
+        qrBtn.addEventListener('click', () => {
+          qrWrapper.style.display = 'block';
+          if (!scanner) scanner = new Html5Qrcode('qr-reader');
+          scanner.start(
+            { facingMode: 'environment' },
+            { fps: 10, qrbox: 250 },
+            decodedText => {
+              document.getElementById('stbId').value = decodedText;
+              scanner.stop();
+              qrWrapper.style.display = 'none';
+            }
+          ).catch(err => console.error('QR start error', err));
         });
 
-        // Purchase button
+        // Beli button
         document.getElementById('btnBeli').addEventListener('click', async () => {
           const name = document.getElementById('buyerName').value;
           const wa = document.getElementById('buyerWA').value;
-          const paket = paketSelect.value;
-          const harga = document.getElementById('hargaPaket').value;
+          const paket = select.value;
+          const price = document.getElementById('hargaPaket').value;
           const stb = document.getElementById('stbId').value;
-          if (!name || !wa || !paket || !harga || !stb) return alert('Semua kolom wajib diisi!');
+          if (!name || !wa || !paket || !price || !stb) return alert('Semua kolom wajib diisi!');
 
-          // Show spinner
           document.getElementById('loadingSpinner').style.display = 'block';
           document.getElementById('btnBeli').disabled = true;
 
-          // Prepare messages & forms then send
-          const msgBuyer = `Hai ${name}, berikut detail pesanan kamu di *DWNStore*:\n\n📦 *Paket*  : ${paket}\n💰 *Harga*  : ${harga}\n📺 *STBID*  : ${stb}\n⏳ S*tatus:*   Pending\n\n*_Silakan tunggu konfirmasi dari Admin. Terima kasih sudah order di DWNStore!_*`;
-          const msgAdmin = `Halo Admin, saya ingin membeli:\n\n👤 *Nama*  : ${name}\n📞 *No WA*  : ${wa}\n📦 *Paket*  : ${paket}\n💰 *Harga*  : ${harga}\n📺 *STBID*  : ${stb}\n\n*_Segera di proses ya!_*`;
-          const send = async (target, message) => {
-            const form = new FormData(); form.append('target', target); form.append('message', message);
-            form.append('countryCode','62'); form.append('delay','2');
-            await fetch('https://api.fonnte.com/send', {
-              method: 'POST', headers: { 'Authorization': 'qss59i4kqEUuEpXbqkKm' }, body: form
-            });
+          const msgBuyer = `Hai ${name}, berikut detail pesanan kamu di *DWNStore*:\n📦 Paket: ${paket}\n💰 Harga: ${price}\n📺 STBID: ${stb}\n⏳ Status: Pending`;
+          const msgAdmin = `Halo Admin, saya ingin membeli:\nNama: ${name}\nWA: ${wa}\nPaket: ${paket}\nHarga: ${price}\nSTBID: ${stb}`;
+
+          const sendMessage = async (to, msg) => {
+            const f = new FormData();
+            f.append('target', to); f.append('message', msg); f.append('countryCode', '62'); f.append('delay', '2');
+            await fetch('https://api.fonnte.com/send', { method: 'POST', headers: { Authorization: 'qss59i4kqEUuEpXbqkKm' }, body: f });
           };
+
           try {
-            await send(wa, msgBuyer);
-            await send('6282272339956', msgAdmin);
-            // Save to Firebase
+            await sendMessage(wa, msgBuyer);
+            await sendMessage('6282272339956', msgAdmin);
             const newRef = db.ref('buyer').push();
-            await newRef.set({ idbuyer: newRef.key, nama: name, wa, paket, harga, stbId: stb, produkId: key, timestamp: firebase.database.ServerValue.TIMESTAMP });
+            await newRef.set({ idbuyer: newRef.key, nama: name, wa, paket, harga: price, stbId: stb, produkId: key, timestamp: firebase.database.ServerValue.TIMESTAMP });
             document.getElementById('successAlert').style.display = 'block';
-          } catch (err) {
-            console.error(err); alert('Gagal mengirim atau menyimpan data!');
+          } catch (e) {
+            console.error(e); alert('Gagal mengirim atau menyimpan data!');
           } finally {
             document.getElementById('loadingSpinner').style.display = 'none';
             document.getElementById('btnBeli').disabled = false;
           }
         });
-      }).catch(e => console.error('Gagal load detail:', e));
+      }).catch(err => console.error('Gagal load detail:', err));
     }
   </script>
 </body>
