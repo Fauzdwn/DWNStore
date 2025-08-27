@@ -1,0 +1,66 @@
+body {
+  background: #f8f9fa;
+  font-family: 'Poppins', sans-serif;
+  padding: 0;
+}
+
+.detail-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  background: #fff;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.product-img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.form-container {
+  max-width: 500px;
+  margin: 2rem auto;
+  background: white;
+  padding: 2rem;
+  border-radius: 10px;
+  position: relative;
+  border: 1px solid #e9ecef;
+}
+
+#loadingSpinner {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+}
+
+#successAlert {
+  display: none;
+}
+
+/* Description clamping styles */
+.desc-clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* Show 3 lines before clamping */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  position: relative;
+  white-space: pre-wrap; /* Respect newlines in description */
+}
+
+.desc-clamp.expanded {
+  -webkit-line-clamp: unset;
+}
+
+.toggle-desc {
+  cursor: pointer;
+  color: #007bff;
+  font-weight: bold;
+  margin-top: 0.5rem;
+  display: inline-block;
+}

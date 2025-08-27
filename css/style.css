@@ -1,0 +1,158 @@
+/* General Body Styles */
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #f8f9fa; /* Light grey background for a softer look */
+  color: #495057; /* Darker grey for better readability */
+}
+
+/* Navbar & Footer Styling */
+.navbar, footer {
+  background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%); /* Modern blue gradient */
+  color: #fff;
+}
+
+.navbar-brand, .nav-link {
+  color: #fff !important;
+  font-weight: 500;
+}
+
+.navbar-brand {
+  font-weight: 600;
+}
+
+footer {
+  padding: 2rem;
+  text-align: center;
+}
+
+/* Section Title */
+.section-title {
+  text-align: center;
+  margin: 2.5rem 0 1.5rem 0;
+  color: #007bff; /* A strong, accessible blue */
+  font-weight: 600;
+}
+
+/* Running Text Bar */
+.running-text {
+  background: #ffc107;
+  color: #333;
+  padding: 0.5rem 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.running-text span {
+  display: inline-block;
+  padding-left: 100%;
+  animation: marquee 15s linear infinite;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-100%); }
+}
+
+/* Horizontal Scrolling Product Section */
+.product-section-scroll {
+  display: flex;
+  gap: 1.5rem; /* Increased gap for better spacing */
+  overflow-x: auto;
+  padding: 1rem 0.5rem;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+
+/* Scrollbar styling */
+.product-section-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+
+.product-section-scroll::-webkit-scrollbar-track {
+  background: #e9ecef;
+  border-radius: 4px;
+}
+
+.product-section-scroll::-webkit-scrollbar-thumb {
+  background-color: #007bff;
+  border-radius: 4px;
+}
+
+/* Modern Product Card */
+.product-card {
+  background: #fff;
+  border: 1px solid #dee2e6; /* Softer border */
+  border-radius: 16px; /* More rounded corners */
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  min-width: 250px; /* Slightly wider cards */
+  scroll-snap-align: start;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1); /* More pronounced shadow on hover */
+}
+
+.product-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+.product-info {
+  padding: 1.25rem;
+  text-align: center;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.product-info h5 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #343a40;
+}
+
+.product-info .price {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #007bff;
+  margin-bottom: 1rem;
+}
+
+.product-info .btn-primary {
+  background-color: #007bff;
+  border-color: #007bff;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.product-info .btn-primary:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+  transform: scale(1.05);
+}
+
+/* Product Label (e.g., "Terlaris") */
+.product-label {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background-color: #dc3545;
+  color: #fff;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.75rem;
+  border-radius: 6px;
+  font-weight: bold;
+  z-index: 2;
+}
