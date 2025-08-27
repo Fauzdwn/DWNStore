@@ -62,85 +62,109 @@
 
   /* Product Card */
   .product-card {
-    background: #fff;                    /* putih bersih */
-    border: 2px solid #0d6efd;           /* garis biru */
-    border-radius: 12px;                 /* sudut melengkung */
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 15px;
     overflow: hidden;
-    transition: transform .2s, box-shadow .2s;
+    transition: transform .3s ease-in-out, box-shadow .3s ease-in-out;
+    opacity: 0; /* Initially hidden for animation */
+    animation: fadeIn 0.5s ease-in-out forwards;
+    display: flex;
+    flex-direction: column;
+    min-width: 240px;
+    scroll-snap-align: start;
+    position: relative;
   }
+
   .product-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 16px rgba(13, 110, 253, 0.2); /* bayangan biru lembut */
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
   }
 
   .product-image {
     width: 100%;
     height: 180px;
     object-fit: cover;
-    border-bottom: 1px solid #e9ecef;
   }
 
   .product-info {
     padding: 1rem;
     text-align: center;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
   }
+
   .product-info h5 {
-    font-size: 1rem;
-    margin-bottom: .5rem;
-    color: #0d6efd;
-  }
-  .product-info .price {
     font-size: 1.1rem;
     font-weight: 600;
+    color: #333;
+    margin-bottom: .5rem;
+  }
+
+  .product-info .price {
+    font-size: 1.2rem;
+    font-weight: 700;
     color: #0d6efd;
+    margin-bottom: 1rem;
   }
+
   .product-info .btn-primary {
-    background-color: #0d6efd;
-    border-color: #0d6efd;
+    background: linear-gradient(45deg, #0d6efd, #0558d4);
+    border: none;
     color: #fff;
-    padding: .4rem .8rem;
-    font-size: .9rem;
-    border-radius: 6px;
-    transition: background-color .2s;
+    padding: .6rem 1rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    transition: transform .2s, box-shadow .2s;
+    font-weight: 600;
   }
+
   .product-info .btn-primary:hover {
-    background-color: #084298;
-    border-color: #084298;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4);
   }
-  
+
+  /* Animation for cards loading */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
   .product-section-scroll {
-  overflow-x: auto;
-  display: flex;
-  gap: 1rem;
-  padding-bottom: 1rem;
-  scroll-snap-type: x mandatory;
-}
-.product-section-scroll::-webkit-scrollbar {
-  height: 8px;
-}
-.product-section-scroll::-webkit-scrollbar-thumb {
-  background-color: #0d6efd;
-  border-radius: 4px;
-}
+    overflow-x: auto;
+    display: flex;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    scroll-snap-type: x mandatory;
+  }
+  .product-section-scroll::-webkit-scrollbar {
+    height: 8px;
+  }
+  .product-section-scroll::-webkit-scrollbar-thumb {
+    background-color: #0d6efd;
+    border-radius: 4px;
+  }
 
-.product-card {
-  min-width: 240px;
-  scroll-snap-align: start;
-  position: relative;
-}
-
-.product-label {
-  position: absolute;
-  top: 0.5rem;
-  left: 0.5rem;
-  background-color: #dc3545;
-  color: #fff;
-  padding: 0.2rem 0.5rem;
-  font-size: 0.75rem;
-  border-radius: 4px;
-  font-weight: bold;
-  z-index: 2;
-}
+  .product-label {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    background-color: #dc3545;
+    color: #fff;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.75rem;
+    border-radius: 4px;
+    font-weight: bold;
+    z-index: 2;
+  }
 
 
   footer { background: #0d6efd; color: #fff; padding: 2rem; text-align: center; }
@@ -228,63 +252,137 @@
   <!-- Firebase & App Script -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js"></script>
+  <script src="config.js"></script>
   <script>
-    // Konfigurasi Firebase
-    const firebaseConfig = {
-      apiKey: "AIzaSyCN2Qn_VUE2w45lKq0rXy2CzJ7oZXk_f7s",
-      authDomain: "dwnprojeck.firebaseapp.com",
-      databaseURL: "https://dwnprojeck-default-rtdb.firebaseio.com",
-      projectId: "dwnprojeck",
-      storageBucket: "dwnprojeck.firebasestorage.app",
-      messagingSenderId: "838975714627",
-      appId: "1:838975714627:web:9bcfa62ed3fc8dbca56bf6",
-      measurementId: "G-LY0J0CQ9XR"
-    };
+    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // Render products dengan harga termurah
-    function renderProducts() {
-      db.ref('produk').once('value').then(snapshot => {
+    // Render products with dynamic popularity
+    async function renderProducts() {
+      // ===================================================================================
+      // IMPORTANT NOTE FOR DEPLOYMENT
+      // ===================================================================================
+      // The logic below simulates calling a secure backend function. In a real environment,
+      // you should call the 'getProducts' cloud function from `/functions/index.js`.
+      //
+      // To switch to the real implementation, replace this simulation with:
+      /*
+        const functions = firebase.functions();
+        const getProducts = functions.httpsCallable('getProducts');
+        try {
+          const result = await getProducts();
+          const allProducts = result.data;
+          // ... then proceed with the rendering logic below ...
+        } catch (error) {
+          console.error("Error fetching products from cloud function:", error);
+        }
+      */
+      // ===================================================================================
+
+      try {
+        // --- Start of Simulation Logic ---
+        const [productsSnapshot, buyersSnapshot] = await Promise.all([
+          db.ref('produk').once('value'),
+          db.ref('buyer').once('value')
+        ]);
+
+        const allProducts = [];
+        const purchaseCounts = {};
+
+        if (buyersSnapshot.exists()) {
+          buyersSnapshot.forEach(buyerChild => {
+            const buyer = buyerChild.val();
+            if (buyer.produkId) {
+              purchaseCounts[buyer.produkId] = (purchaseCounts[buyer.produkId] || 0) + 1;
+            }
+          });
+        }
+
+        productsSnapshot.forEach(productChild => {
+          allProducts.push({
+            id: productChild.key,
+            ...productChild.val(),
+            purchaseCount: purchaseCounts[productChild.key] || 0
+          });
+        });
+        // --- End of Simulation Logic ---
+
         const secs = {
           populer: 'produk-populer',
           'k-vision': 'produk-kvision',
           nusantara: 'produk-nusantara',
           'nex parabola': 'produk-nex'
         };
-        // Clear each section
         Object.values(secs).forEach(id => document.getElementById(id).innerHTML = '');
 
-        snapshot.forEach(child => {
-          const d = child.val();
-          // Hitung harga termurah dari array variations
-          let minPrice = 0;
-          if (Array.isArray(d.variations) && d.variations.length > 0) {
-            minPrice = d.variations
-              .map(v => parseInt(v.price.replace(/[^0-9]/g, ''), 10))
-              .reduce((a, b) => Math.min(a, b));
+        // 1. Determine which products are popular
+        const popularProductIds = new Set(
+          allProducts
+          .filter(p => p.purchaseCount > 0)
+          .sort((a, b) => b.purchaseCount - a.purchaseCount)
+          .slice(0, 5)
+          .map(p => p.id)
+        );
+
+        if (popularProductIds.size > 0) {
+          let popularCounter = 0;
+          allProducts.forEach(product => {
+            if (popularProductIds.has(product.id)) {
+              popularCounter++;
+              document.getElementById(secs.populer).innerHTML += createProductCard(product, popularCounter, true);
+            }
+          });
+        } else {
+          document.getElementById(secs.populer).innerHTML = '<p class="text-center">Belum ada produk populer saat ini.</p>';
+        }
+
+        // 2. Render products in their respective categories
+        let counters = { 'k-vision': 0, nusantara: 0, 'nex parabola': 0 };
+        allProducts.forEach(product => {
+          const status = product.status.toLowerCase();
+          const sectionId = secs[status];
+          if (sectionId && status !== 'populer') {
+            counters[status]++;
+            const isPopular = popularProductIds.has(product.id);
+            document.getElementById(sectionId).innerHTML += createProductCard(product, counters[status], isPopular);
           }
-          const priceText = minPrice ? 'Rp.' + minPrice.toLocaleString() : '-';
-
-          const col = `
-  <div class="product-card">
-    ${d.status.toLowerCase() === 'populer' ? '<div class="product-label">Terlaris</div>' : ''}
-    <img src="${d.urlgambar}" class="product-image" alt="${d.nama}">
-    <div class="product-info p-2 d-flex flex-column justify-content-between">
-      <div>
-        <h5>${d.nama}</h5>
-        <p class="price fw-bold">${priceText}</p>
-      </div>
-      <a href="beli/index.html?id=${child.key}" class="btn btn-sm btn-primary mt-2">Beli</a>
-    </div>
-  </div>
-`;
-
-          const section = secs[d.status.toLowerCase()] || secs.populer;
-          document.getElementById(section).innerHTML += col;
         });
-      }).catch(err => console.error('Gagal load produk:', err));
+
+      } catch (err) {
+        console.error('Gagal memuat produk:', err);
+        const secs = { populer: 'produk-populer', 'k-vision': 'produk-kvision', nusantara: 'produk-nusantara', 'nex parabola': 'produk-nex' };
+        Object.values(secs).forEach(id => document.getElementById(id).innerHTML = '<p class="text-center text-danger">Gagal memuat produk. Silakan coba lagi nanti.</p>');
+      }
     }
+
+    function createProductCard(productData, delayIndex, isPopular) {
+      const d = productData;
+      const key = productData.id;
+
+      let minPrice = 0;
+      if (Array.isArray(d.variations) && d.variations.length > 0) {
+        minPrice = d.variations
+          .map(v => parseInt(v.price.replace(/[^0-9]/g, ''), 10))
+          .reduce((a, b) => Math.min(a, b));
+      }
+      const priceText = minPrice ? `Mulai dari Rp${minPrice.toLocaleString()}` : 'Harga bervariasi';
+
+      return `
+        <div class="product-card" style="animation-delay: ${delayIndex * 0.1}s">
+          ${isPopular ? '<div class="product-label">Terlaris 🔥</div>' : ''}
+          <img src="${d.urlgambar}" class="product-image" alt="${d.nama}">
+          <div class="product-info">
+            <div>
+              <h5>${d.nama}</h5>
+              <p class="price">${priceText}</p>
+            </div>
+            <a href="beli/index.html?id=${key}" class="btn btn-primary">Lihat Detail</a>
+          </div>
+        </div>`;
+    }
+
     document.addEventListener('DOMContentLoaded', renderProducts);
   </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

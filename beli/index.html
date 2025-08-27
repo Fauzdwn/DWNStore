@@ -81,17 +81,10 @@
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js"></script>
+  <script src="../config.js"></script>
   <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCN2Qn_VUE2w45lKq0rXy2CzJ7oZXk_f7s",
-      authDomain: "dwnprojeck.firebaseapp.com",
-      databaseURL: "https://dwnprojeck-default-rtdb.firebaseio.com",
-      projectId: "dwnprojeck",
-      storageBucket: "dwnprojeck.firebasestorage.app",
-      messagingSenderId: "838975714627",
-      appId: "1:838975714627:web:9bcfa62ed3fc8dbca56bf6",
-      measurementId: "G-LY0J0CQ9XR"
-    };
+    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
@@ -194,6 +187,10 @@
           hargaInput.value = sel ? sel.price : '';
         });
 
+        // Initialize Firebase Functions
+        const functions = firebase.functions();
+        const processPurchase = functions.httpsCallable('processPurchase');
+
         btn.addEventListener('click', async () => {
           if (!buyerName.value || !buyerWA.value || !paketSelect.value || !hargaInput.value || !stbInput.value) {
             return alert('Semua kolom wajib diisi!');
@@ -201,61 +198,27 @@
           btn.disabled = true;
           spinner.style.display = 'block';
 
-          const msgBuyer = `Hai ${buyerName.value}, berikut detail pesanan kamu di *DWNStore*:\n
-📦 *Paket*  : ${paketSelect.value}\n
-💰 *Harga*  : ${hargaInput.value}\n
-📺 *STBID*  : ${stbInput.value}\n
-⏳ *Status* : Pending\n
-Silakan tunggu konfirmasi dari Admin. Terima kasih sudah order di DWNStore!`;
-
-          const msgAdmin = `Halo Admin,\nSaya ingin membeli:\n
-👤 *Nama*   : ${buyerName.value}\n
-📦 *Paket*  : ${paketSelect.value}\n
-📞 *No WA*  : ${buyerWA.value}\n
-💰 *Harga*  : ${hargaInput.value}\n
-📺 *STBID*  : ${stbInput.value}\n
-Segera di proses ya!`;
-
-          const formBuyer = new FormData();
-          formBuyer.append('target', buyerWA.value);
-          formBuyer.append('message', msgBuyer);
-          formBuyer.append('countryCode', '62');
-          formBuyer.append('delay', '2');
-
-          const formAdmin = new FormData();
-          formAdmin.append('target', '6282272339956');
-          formAdmin.append('message', msgAdmin);
-          formAdmin.append('countryCode', '62');
-          formAdmin.append('delay', '2');
-
           try {
-            // Kirim ke buyer
-            await fetch('https://api.fonnte.com/send', {
-              method: 'POST', headers: { 'Authorization': 'qss59i4kqEUuEpXbqkKm' }, body: formBuyer
-            });
-            // Kirim ke admin
-            await fetch('https://api.fonnte.com/send', {
-              method: 'POST', headers: { 'Authorization': 'qss59i4kqEUuEpXbqkKm' }, body: formAdmin
-            });
-
-            // Simpan data buyer ke Firebase
-            const newBuyerRef = db.ref('buyer').push();
-            const idbuyer = newBuyerRef.key;
-            await newBuyerRef.set({
-              idbuyer,
-              nama: buyerName.value,
-              wa: buyerWA.value,
+            // Call the secure backend function
+            const result = await processPurchase({
+              buyerName: buyerName.value,
+              buyerWA: buyerWA.value,
               paket: paketSelect.value,
               harga: hargaInput.value,
               stbId: stbInput.value,
               produkId: key,
-              timestamp: firebase.database.ServerValue.TIMESTAMP
             });
 
-            alertBox.style.display = 'block';
+            if (result.data.success) {
+                alertBox.textContent = result.data.message;
+                alertBox.style.display = 'block';
+            } else {
+                throw new Error(result.data.message || 'Terjadi kesalahan yang tidak diketahui.');
+            }
+
           } catch (err) {
-            console.error('Gagal kirim atau simpan data:', err);
-            alert('Gagal mengirim pesan atau menyimpan data!');
+            console.error('Gagal memproses pembelian:', err);
+            alert('Gagal memproses pesanan: ' + err.message);
           } finally {
             spinner.style.display = 'none';
             btn.disabled = false;
